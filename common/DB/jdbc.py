@@ -27,7 +27,6 @@ monthDay = (datetime.today() - relativedelta(days=31)).strftime("%Y-%m-%d")
 
 def db_select(qry):
     qry=qry.lower()
-    print(qry)
     dbname = DBName
     dbtype = DBType
     table = ' '
@@ -58,7 +57,10 @@ def db_select(qry):
         print("===============================")
         print("Success")
         print("===============================")
-        table = qry.split('from ')[1].split(' ')[0]
+        table = qry.split('from')[1].replace(";", "")
+        if 'where' in table.lower() :
+            table = table.split('where')[0].strip().replace('\n', "")
+            
         db_result = "Success SELECT Table Rows "+table
         history = [dbname, dbtype, table, web_user, db_user, db_query, db_result]
         data = {'status' : 200, 'data' : data, 'type' : 'select', 'history': history}
@@ -534,30 +536,56 @@ def history_insert(data):
         else:
             dbquery = dbquery+";"
             if "'" in dbquery:
-                print(dbquery)
                 dbquery = dbquery.replace("'","''")
-                print(dbquery)
+        print("=================================")
+        print(dbquery)
+        print("=================================")
         dbresult=data['history'][6]
         qry="""
-            insert into """+DBName+"""."""+HistoryTNM+"""("database_name", "database_type", "db_table", "web_user", "db_user", "db_query", "db_result", "commit_date")
-            values('"""+dbname+"""','"""+dbtype+"""','"""+dbtable+"""','"""+webuser+"""','"""+dbuser+"""','"""+dbquery+"""','"""+dbresult+"""',now());
+            INSERT into """+DBName+"""."""+HistoryTNM+"""
+                ("database_name", 
+                 "database_type", 
+                 "db_table", 
+                 "web_user", 
+                 "db_user", 
+                 "db_query", 
+                 "db_result", 
+                 "commit_date")
+            VALUES
+            ('"""+dbname+"""',
+             '"""+dbtype+"""',
+             '"""+dbtable+"""',
+             '"""+webuser+"""',
+             '"""+dbuser+"""',
+             '"""+dbquery+"""',
+             '"""+dbresult+"""',
+             now());
         """
         td_context = create_context(host="1.223.168.93:44240", username="dbc", password="dbc", logmech="TD2")
         result = td_context.execute(qry)
         remove_context()
     except:
-        print(HistoryTNM + ' History Table connection(Select) Failure')
+        print(HistoryTNM + ' History Table connection(INSERT) Failure')
 
 def history_select():
     try:
         td_context = create_context(host=DBHost + ":" + DBPort, username=DBUser, password=DBPwd)
         query = """
-            select
-                *
-            from
+            SELECT TOP 50
+                tera_history_num,
+                database_name , 
+                database_type , 
+                db_table , 
+                web_user , 
+                db_user , 
+                db_query , 
+                db_result , 
+                commit_date
+            FROM
                 """ + DBName + """.""" + HistoryTNM + """
-
+            ORDER BY commit_date DESC;
             """
+
         result = td_context.execute(query)
         RS = result.fetchall()
         DFL = []
@@ -574,7 +602,7 @@ def history_select():
             DFL.append([num, dbname, dbtype, dbtable, web_user, db_user, db_query, db_result, commit_time])
             DFC = ['num', 'dbname', 'dbtype', 'dbtable', 'web_user', 'db_user', 'db_query', 'db_result', 'commit_time']
         DF = pd.DataFrame(DFL, columns=DFC).sort_values(by='commit_time', ascending=False).reset_index(drop=True)
-        DF = DF.head(50) #페이징 처리 이전 50개 제한
+        # DF = DF.head(50) #페이징 처리 이전 50개 제한
         DC = DF.to_dict('records')
         remove_context()
         return DC
@@ -712,7 +740,6 @@ def db_export(ex_type, sql) :
             with open(down_path, 'w', encoding='utf-8') as f:
                 data.to_json(f, force_ascii=False, orient = 'index', date_format='iso', indent=4)
         print('{} is success'.format(ex_type))
-        print(file)
         result= {
             'status' : 200,
             'data' : file
