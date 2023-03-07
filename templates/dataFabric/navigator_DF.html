@@ -1,0 +1,303 @@
+{% extends 'base.html' %}
+{% load web_filter %}
+{% block content %}
+{% load static %}
+
+<div id="content" class="app-content" style="padding: 1rem !important;">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="row">
+                    <div class="col-xl-4">
+                      <div class="d-flex h-30px form-control form-control-lg bg-white bg-opacity-25 mb-1 fs-12px p-0 w-200px text-white align-items-center justify-content-center">Database Navigator</div>
+                        {% csrf_token %}
+                        <div class="d-flex">
+                          <div>
+                            {% for item in column%}
+                                {%if forloop.first%}
+                                <button type="button" class="btn-dataNavi fs-12 w-100px active btn btn-outline-naviDF d-block mb-1 me-0 h-30px p-0 deactive text-white" onclick="{{item.0}}('{{item.0}}');">{{item.0}}</button>
+                                {% else%}
+                                <button type="button" class="btn-dataNavi fs-12 w-100px btn btn-outline-naviDF d-block mb-1 me-0 h-30px p-0 deactive text-white" onclick="{{item.0}}('{{item.0}}');">{{item.0}}</button>
+                                {%endif%}
+                            {%endfor%}
+                        </div>
+                            <div class="form-control form-control-lg bg-white bg-opacity-10 w-270px h-810px">
+                                <div class="Navi-DF Navi-DF-Teradata-menu DataFabric-scroll" >
+                                    <div class="Navi-DF-menu1">
+                                        <i class="bi bi-caret-down-fill menu-list menu-list1 menu-icon" id="nav_main">{{column.0.0}}</i>
+                                        <div class="Navi-DF-menu2" id="database_table">
+                                            {% for item in data%}
+                                            <i class="bi bi-caret-right-fill menu-list menu-list2 menu-icon" onclick="execute('{{item.1|safe}}', this);"><i class="bi bi-file-earmark-text">{{item.1}}</i></i></br>
+                                            {% endfor%}
+                                            <div class="Navi-DF-menu5" id="navigator_table">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-8">
+                        <div class="d-flex h-30px form-control form-control-lg bg-white bg-opacity-25 mb-1 fs-12px p-0 w-200px  text-white align-items-center justify-content-center">Table Properties</div>
+                        <div class="w-100">
+                            <div class="d-flex">
+                                <div>
+                                    <button type="button" id="pro_data" class="btn-tableProperties fs-12px w-100px btn btn-outline-naviDF d-block mb-1 h-30px p-0 text-white active" onclick="pro_data();">Data</button>
+                                    <button type="button" id="pro_col" class="btn-tableProperties fs-12px w-100px btn btn-outline-naviDF d-block mb-1 h-30px p-0 text-white" onclick="pro_col();">Column</button>
+                                    <button type="button" id="pro_ddl" class="btn-tableProperties DDL-btn fs-12px w-100px btn btn-outline-naviDF d-block mb-1 h-30px p-0 text-white" onclick="pro_ddl();">DDL</button>
+                                </div>
+
+                                <div class="form-control form-control-lg bg-white bg-opacity-10 h-810px col-xl-8" id="pro_view">
+                                    <table id="properties_Table" class="table TableProperties table-bordered dataFabricTable-sm">
+                                        <thead>
+                                            <tr class="table-dark" id="properties_columns">
+                                            </tr>
+                                        </thead>
+                                        <tbody id="properties_data">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var all_data;
+    var ddl;
+    column_list = {{column|safe}};
+    console.log(column_list);
+    for(let i = 0; i < column_list.length; i++){
+        window[column_list[i][0]] = function(name){
+            $.ajax({
+                type : "POST",
+                url : "navigator_database_api/",
+                data : {
+                    'name' : name
+                },
+                async : false,
+                success : function(res){
+                    $('#nav_main').text(name);
+                    $('#database_table').empty()
+                    var str = "";
+                    $.each(res.data, function(i){
+                        str += `<i class="bi bi-caret-right-fill menu-list `+res.data[i]+` menu-icon" onclick="execute('` + res.data[i] +`', this);" id='` + res.data[i] +`'><i class="bi bi-file-earmark-text">` + res.data[i] +`</i></i></br>`
+                    });
+                    str += `<div class="Navi-DF-` + res.data[i] +`" id="navigator_table">`
+                    str += `</div>`
+                    $('#database_table').append(str)
+                },
+                error : function(XMLHttpRequest, textStatus, errorThrown){
+                    alert('Error');
+                }
+            });
+        }
+
+    }
+    
+
+    function execute(f, class_property) {
+        if($(class_property).attr("class").includes('down-fill')){
+            $(class_property).attr('class', 'bi bi-caret-right-fill menu-list `+res.data[i]+` menu-icon ');
+            $('#navigator_table').empty()
+        }else {
+        params = {
+            'name' : String(f)
+        };
+        var data_name =  $(class_property).attr("id");
+        if ($(class_property).attr("class").includes('right-fill')){
+            $.ajax({
+                type : "POST",
+                url : "navigator_api/",
+                data : params,
+                async : false,
+                success : function(res){
+                    $('#navigator_table').empty()
+                    var str = "";
+                    $.each(res.data, function(i){
+                        ddl = res.ddl[i].replace(/\r/g, "</br>").replace(/'/g, "<hr>");
+                        str += `<i class="bi bi-caret-right-fill menu-list `+res.data[i]+` menu-icon " onclick="properties_view('` +String(f) + `','`+ String(res.data[i]) + `');">`
+                        str += `<i class="bi bi-people ">` + String(res.data[i]).trim() +`</i>`
+                        str += `</i></br>`
+                        });
+                    $(class_property).attr('class', 'bi bi-caret-down-fill menu-list menu-list3 menu-icon ');
+                    $('#navigator_table').append(str)
+                },
+                error : function(XMLHttpRequest, textStatus, errorThrown){
+                    alert('데이터 테이블의 값이 없습니다');
+                }
+            });
+        }
+        }
+    }
+    function pro_data(){
+        if ($.fn.DataTable.isDataTable('#properties_Table')) {
+            $("#properties_Table").remove()
+            var str = "";
+            str += '<table id="properties_Table" class="table TableProperties table-bordered dataFabricTable-sm">'
+            str += '<thead>'
+            str += `<tr class="table-dark" id='properties_columns'>`
+            str += `</tr>`
+            str += `</thead>`
+            str += `<tbody id="properties_data">`
+            str += `</tbody>`
+            str += '</table>'
+            $("#pro_view").html(str);
+        };
+        var str = "";
+        $.each(all_data.data_column, function(i){
+            str += `<th>` + all_data.data_column[i] + `</th>`
+        });
+        $('#properties_columns').append(str)
+
+        var str = "";
+        $.each(all_data.data, function(i){
+            str += `<tr>`
+                $.each(all_data.data[i], function(j){
+                    str += `<td>` + all_data.data[i][j] + `</td>`
+                });
+            str += `</tr>`
+        });
+        
+        $('#properties_data').append(str)
+        handleRenderpropertiesTableData();
+    }
+
+    function pro_col(){
+        if ($.fn.DataTable.isDataTable('#properties_Table')) {
+            $("#properties_Table").remove()
+            var str = "";
+            str += '<table id="properties_Table" class="table TableProperties table-bordered dataFabricTable-sm">'
+            str += '<thead>'
+            str += `<tr class="table-dark" id='properties_columns'>`
+            str += `</tr>`
+            str += `</thead>`
+            str += `<tbody id="properties_data">`
+            str += `</tbody>`
+            str += '</table>'
+            $("#pro_view").html(str);
+        };
+        
+        var str = "";
+        str += `<th>#</th>`
+        $.each(all_data.columns_column, function(i){
+            str += `<th>` + all_data.columns_column[i] + `</th>`
+        });
+        $('#properties_columns').append(str)
+
+        var str = "";
+        $.each(all_data.columns, function(i){
+            str += `<tr>`
+                str += `<td>` + (i+1) + `</td>`
+                $.each(all_data.columns[i], function(j){
+                    if(j == 1){
+                        if(all_data.columns[i][1].trim() == 'N'){
+                            str += `<th>[V]</th>`
+                        }else{
+                            str += `<th>[ ]</th>`
+                        }
+                    }else{
+                        str += `<td>` + all_data.columns[i][j] + `</td>`
+                    }
+                });
+            str += `</tr>`
+        });
+        $('#properties_data').append(str);
+        handleRenderpropertiesTableData();
+    };
+
+    function pro_ddl(){
+        if ($.fn.DataTable.isDataTable('#properties_Table')) {
+            $("#properties_Table").remove()
+            var str = "";
+            str += '<table id="properties_Table" class="table TableProperties table-bordered dataFabricTable-sm">'
+            str += '<thead>'
+            str += `<tr class="table-dark" id='properties_columns'>`
+            str += `<th>No</th>`
+            str += `<th>type</th>`
+            str += `<th>data</th>`
+            str += `</tr>`
+            str += `</thead>`
+            str += `<tbody id="properties_data">`
+            str += `</tbody>`
+            str += '</table>'
+            $("#pro_view").html(str);
+        };
+        var str = "";
+        console.log(ddl);
+        str += `<tr>`
+                str += `<td>1</td>`
+                str +=  `<td class="text-truncate">CREATE</td>`
+                str +=  `<td>`
+                str +=              ddl
+                str +=  `</td>`
+                str +=  `</td>`
+        str += `</tr>`
+        $('#properties_data').append(str);
+        handleRenderpropertiesTableData();
+    }
+
+    function properties_view(a, f){
+        params = {
+            'database' : a,
+            'table' : f,
+            'ddl' : ddl
+        }
+        $.ajax({
+                type : "POST",
+                url : "property_api/",
+                data : params,
+                async : false,
+                success : function(res){
+                    $('#pro_data').attr('class', 'btn-tableProperties fs-12px w-100px btn btn-outline-naviDF d-block mb-1 h-30px p-0 text-white active');
+                    $('#pro_col').attr('class', 'btn-tableProperties fs-12px w-100px btn btn-outline-naviDF d-block mb-1 h-30px p-0 text-white');
+                    $('#pro_ddl').attr('class', 'btn-tableProperties DDL-btn fs-12px w-100px btn btn-outline-naviDF d-block mb-1 h-30px p-0 text-white');
+                    if ($.fn.DataTable.isDataTable('#properties_Table')) {
+                        $("#properties_Table").remove()
+                        var str = "";
+                        str += '<table id="properties_Table" class="table TableProperties table-bordered dataFabricTable-sm">'
+                        str += '<thead>'
+                        str += `<tr class="table-dark" id='properties_columns'>`
+                        str += `</tr>`
+                        str += `</thead>`
+                        str += `<tbody id="properties_data">`
+                        str += `</tbody>`
+                        str += '</table>'
+                        $("#pro_view").html(str);
+                    };
+                    $('#properties_columns').empty()
+                    $('#properties_data').empty()
+                    all_data = res;
+                    var str = "";
+                    $.each(res.data_column, function(i){
+                        str += `<th>` + res.data_column[i] + `</th>`
+                    });
+                    $('#properties_columns').append(str)
+
+                    var str = "";
+                    $.each(res.data, function(i){
+                        str += `<tr>`
+                            $.each(res.data[i], function(j){
+                                str += `<td>` + res.data[i][j] + `</td>`
+                            });
+                        str += `</tr>`
+                    });
+                    
+                    $('#properties_data').append(str)
+                    handleRenderpropertiesTableData();
+                },
+                beforeSend: function() {
+                    
+                },
+                error : function(XMLHttpRequest, textStatus, errorThrown){
+                    alert('Error');
+                }
+            });
+    }
+</script>
+{% endblock %}
