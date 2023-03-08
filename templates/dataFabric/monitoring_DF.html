@@ -72,11 +72,11 @@
                                         <td style="border-left: none; border-right: none;"><span class="thin">{{historydata.dbtable}}</span></td>
                                         <td style="border-left: none; border-right: none;"><span class="thin">{{historydata.db_user}}</span></td>
                                         <td style="border-left: none; border-right: none;">
-                                            <i class="fa-regular fa-clipboard" onclick="copy_sql()" alt="Copy Sql" id="clipboard" title="copy"></i>
+                                            <i class="fa-regular fa-clipboard" onclick="copy_sql({{forloop.counter}})" id="clipboard" title="copy"></i>
                                             <span class="thin">
                                             &nbsp{{historydata.db_query}}
                                             </span>
-                                            <input type="hidden" value = '{{historydata.db_query}}' id="sql_text">
+                                            <input type="hidden" value = '{{historydata.db_query}}' id="sql_text{{forloop.counter}}">
                                         </td>
                                         <td>
                                         {% if 'Success' in historydata.db_result%}
@@ -86,16 +86,16 @@
                                         {% endif %}
                                         {{historydata.db_result}}</td>
                                     </tr>
-                                    <tr style="display;" id="accord{{forloop.counter}}">
+                                    <tr style="display : None;" id="accord{{forloop.counter}}">
                                         <td colspan="8">
                                             <ul class="text-start" style="padding-right: 32px;">
                                                 <br>
-                                                <li><h6>TimeStamp : {{historydata.commit_time}}</h6></li>
-                                                <li><h6>DB Name : {{historydata.dbname}}</h6></li>
-                                                <li><h6>database : {{historydata.dbtype}}</h6></li>
-                                                <li><h6>Table : {{historydata.dbtable}}</h6></li>
-                                                <li><h6>User : {{historydata.db_user}}</h6></li>
-                                                <li><h6>Result : {{historydata.db_result}}</h6></li>
+                                                <li><h6>TimeStamp</h6> : {{historydata.commit_time}}</li>
+                                                <li><h6>DB Name</h6> : {{historydata.dbname}}</li>
+                                                <li><h6>database</h6> : {{historydata.dbtype}}</li>
+                                                <li><h6>Table</h6> : {{historydata.dbtable}}</li>
+                                                <li><h6>User</h6> : {{historydata.db_user}}</li>
+                                                <li><h6>Result</h6> : {{historydata.db_result}}</li>
                                                 <li><h6>Query</h6></li>
                                                 <textarea id="addr" style="width:100%; height:200px; background-color:transparent; overflow:hidden; color:white; font-weight : bold; font-size: 1.2em; resize: none;">
                                                     {{historydata.db_query}}
@@ -130,8 +130,8 @@
     var user_traffic = {{user_traffic | safe}};
     var cpu_traffic = {{ cpu_traffic | safe}};
 
-    function copy_sql(){
-        var sql = document.getElementById('sql_text');
+    function copy_sql(f){
+        var sql = document.getElementById('sql_text' + f);
 
         try {
             navigator.clipboard.writeText(sql.value);
