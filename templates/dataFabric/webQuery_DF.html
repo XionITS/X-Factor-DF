@@ -344,7 +344,6 @@
             'type' : type,
             'sql' : sql
         };
-        console.log(params);
         $.ajax({
                 type : "GET",
                 url : "export_api/",
@@ -354,9 +353,17 @@
                     console.log(res);
                     if (res['status'] == 200){
                         console.log(res);
-                        alert(type + '이 만들어졌습니다');
+                        Swal.fire({
+                            icon: 'success',                         // Alert 타입
+                            title: type + '이 만들어졌습니다',         // Alert 제목
+                            text: res['file'],  // Alert 내용
+                        });
                     }else if(res['status']==400){
-                        alert(type + '이 만들어졌습니다');
+                        Swal.fire({
+                            icon: 'error',                         // Alert 타입
+                            title: type + '을 만드는데 실패했습니다.',         // Alert 제목
+                            text: res['file'],  // Alert 내용
+                        });
                     }
                 },
                 beforeSend: function() {

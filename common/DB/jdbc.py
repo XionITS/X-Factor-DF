@@ -731,14 +731,17 @@ def db_export(ex_type, sql) :
         down_path = os.getenv('USERPROFILE') + '\downloads'
         if ex_type == 'excel' :
             down_path = down_path + '\DF_excel.xlsx'
-            file = data.to_excel(down_path)
+            data.to_excel(down_path)
+            file = down_path
         elif ex_type == 'csv' :
             down_path = down_path + '\DF_csv.csv'
-            file = data.to_csv(down_path)
+            data.to_csv(down_path)
+            file = down_path
         elif ex_type == 'json' :
             down_path = down_path + '\df_json.json'
             with open(down_path, 'w', encoding='utf-8') as f:
                 data.to_json(f, force_ascii=False, orient = 'index', date_format='iso', indent=4)
+            file = down_path
         print('{} is success'.format(ex_type))
         result= {
             'status' : 200,

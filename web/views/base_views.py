@@ -202,7 +202,6 @@ def export_api(request) :
         'status' : result['status'],
         'file' : result['data']
     }
-    
     return JsonResponse(returnData)
 
 @csrf_exempt

@@ -65,13 +65,14 @@
                                 <tbody class="link-2">
                                     {% for historydata in history %}
                                     <tr>
-                                        <td style="border-left: none; border-right: none;"><i class="bi bi-plus-square" onclick="accordian_all('accord{{forloop.counter}}');"></i></td>
+                                        <td style="border-left: none; border-right: none;"><i id="plusbutton{{forloop.counter}}" class="bi bi-plus-square" onclick="accordian_all('accord{{forloop.counter}}', {{forloop.counter}});"></i></td>
                                         <td style="border-left: none; border-right: none;"><span class="thin">{{historydata.commit_time}}</span></td>
                                         <td style="border-left: none; border-right: none;"><span class="thin">{{historydata.dbname}}</span></td>
                                         <td style="border-left: none; border-right: none;"><span class="thin">{{historydata.dbtype}}</span></td>
                                         <td style="border-left: none; border-right: none;"><span class="thin">{{historydata.dbtable}}</span></td>
                                         <td style="border-left: none; border-right: none;"><span class="thin">{{historydata.db_user}}</span></td>
-                                        <td style="border-left: none; border-right: none;"><i class="fa-regular fa-clipboard" onclick="copy_sql()"></i>
+                                        <td style="border-left: none; border-right: none;">
+                                            <i class="fa-regular fa-clipboard" onclick="copy_sql()" alt="Copy Sql" id="clipboard" title="copy"></i>
                                             <span class="thin">
                                             &nbsp{{historydata.db_query}}
                                             </span>
@@ -134,14 +135,31 @@
         } catch (err) {
             console.log('복사할 수 없음!');
         }
-        alert('복사되었습니다.')
+        const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'center-center',
+                    showConfirmButton: false,
+                    timer: 1000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                })
+
+        Toast.fire({
+            icon: 'success',
+            title: 'Copied'
+        })
     };
 
-    function accordian_all(f){
+    function accordian_all(f, c){
         const row = document.getElementById(f);
-        if(row.style.display=='none'){ 		
+        if(row.style.display=='none'){
+            $('#plusbutton' + c).attr('class', 'bi bi-dash-square'); 		
             row.style.display = '';
         }else{ 		
+            $('#plusbutton' + c).attr('class', 'bi bi-plus-square'); 		
             row.style.display = 'none'; 	
         } 
     };
