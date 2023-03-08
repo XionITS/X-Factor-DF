@@ -733,6 +733,9 @@ def db_export(ex_type, sql) :
             down_path = down_path + '\DF_excel.xlsx'
             data.to_excel(down_path)
             file = down_path
+            print("=======================")
+            print(file)
+            print("=======================")
         elif ex_type == 'csv' :
             down_path = down_path + '\DF_csv.csv'
             data.to_csv(down_path)

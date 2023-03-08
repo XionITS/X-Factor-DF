@@ -436,7 +436,7 @@ for (var i = 0; i < user_traffic.length; i++){
     },
     series : cpu_traffic[0]['data'],
     xaxis: {
-      categories: cpu_traffic[0]['date'],
+      categories: cpu_traffic[0]['date'].sort(),
       labels: {
         show: true,
       },
@@ -477,5 +477,6 @@ for (var i = 0; i < user_traffic.length; i++){
 /* Controller
 ------------------------------------------------ */
 $(document).ready(function () {
+  console.log(cpu_traffic[0]['date'].sort())
 	handleRenderDataFabricApexChart();
 });

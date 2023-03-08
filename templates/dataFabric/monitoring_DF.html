@@ -64,7 +64,7 @@
                                 </thead>
                                 <tbody class="link-2">
                                     {% for historydata in history %}
-                                    <tr>
+                                    <tr class="hadeari">
                                         <td style="border-left: none; border-right: none;"><i id="plusbutton{{forloop.counter}}" class="bi bi-plus-square" onclick="accordian_all('accord{{forloop.counter}}', {{forloop.counter}});"></i></td>
                                         <td style="border-left: none; border-right: none;"><span class="thin">{{historydata.commit_time|date:'Y-m-d H:i'}}</span></td>
                                         <td style="border-left: none; border-right: none;"><span class="thin">{{historydata.dbname}}</span></td>

@@ -30901,7 +30901,7 @@ body .note-modal-backdrop {
     border-radius: 4px;
 }
 
-.link-2 tr:hover {
+.link-2 tr.hadeari:hover {
   color: #ff9f0c;
 }
 
