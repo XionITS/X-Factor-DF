@@ -26,7 +26,7 @@
                                 <div class="Navi-DF Navi-DF-Teradata-menu DataFabric-scroll" >
                                     <div class="Navi-DF-menu1">
                                         <i class="bi bi-caret-down-fill menu-list menu-list1 menu-icon" id="nav_main">{{column.0.0}}</i>
-                                        <div class="Navi-DF-menu2" id="database_table">
+                                        <div class="Navi-DF-menu2" id="database_table" style="padding-left:14px;">
                                             {% for item in data%}
                                             <i class="bi bi-caret-right-fill menu-list menu-list2 menu-icon" onclick="execute('{{item.1|safe}}', this);"><i class="bi bi-file-earmark-text">{{item.1}}</i></i></br>
                                             {% endfor%}
@@ -86,14 +86,30 @@
                     $('#database_table').empty()
                     var str = "";
                     $.each(res.data, function(i){
+                        console.log(res.data[i]);
                         str += `<i class="bi bi-caret-right-fill menu-list `+res.data[i]+` menu-icon" onclick="execute('` + res.data[i] +`', this);" id='` + res.data[i] +`'><i class="bi bi-file-earmark-text">` + res.data[i] +`</i></i></br>`
+                        str += `<div class="Navi-DF-` + res.data[i] +`" id="navigator_table_`+res.data[i]+`" style="padding-left:14px;">`
+                        str += `</div>`
                     });
-                    str += `<div class="Navi-DF-` + res.data[i] +`" id="navigator_table">`
-                    str += `</div>`
                     $('#database_table').append(str)
                 },
                 error : function(XMLHttpRequest, textStatus, errorThrown){
-                    alert('Error');
+                    var Toast = Swal.mixin({
+                    toast: true,
+                    position: 'center-center',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    })
+
+                    Toast.fire({
+                        icon: 'error',
+                        title: "Failed to get Database properties."
+                    })
                 }
             });
         }
@@ -104,7 +120,7 @@
     function execute(f, class_property) {
         if($(class_property).attr("class").includes('down-fill')){
             $(class_property).attr('class', 'bi bi-caret-right-fill menu-list `+res.data[i]+` menu-icon ');
-            $('#navigator_table').empty()
+            $('#navigator_table_'+f).empty()
         }else {
         params = {
             'name' : String(f)
@@ -117,24 +133,47 @@
                 data : params,
                 async : false,
                 success : function(res){
-                    $('#navigator_table').empty()
+                    $('#navigator_table'+f).empty()
                     var str = "";
+                    console.log("===============")
+                    console.log(f);
+                    console.log(class_property);
+                    console.log("===============")
                     $.each(res.data, function(i){
                         ddl = res.ddl[i].replace(/\r/g, "</br>").replace(/'/g, "<hr>");
-                        str += `<i class="bi bi-caret-right-fill menu-list `+res.data[i]+` menu-icon " onclick="properties_view('` +String(f) + `','`+ String(res.data[i]) + `');">`
-                        str += `<i class="bi bi-people ">` + String(res.data[i]).trim() +`</i>`
+
+                        str += `<i class="bi bi-caret-right-fill menu-list `+res.data[i]+` menu-icon " 
+                                onclick="properties_view('` +String(f) + `','`+ String(res.data[i]) + `');">`
+                        str += `<i class="bi bi-table">` + String(res.data[i]).trim() +`</i>`
                         str += `</i></br>`
+
                         });
                     $(class_property).attr('class', 'bi bi-caret-down-fill menu-list menu-list3 menu-icon ');
-                    $('#navigator_table').append(str)
+                    $('#navigator_table_'+f).append(str)
                 },
                 error : function(XMLHttpRequest, textStatus, errorThrown){
-                    alert('데이터 테이블의 값이 없습니다');
-                }
+                    var Toast = Swal.mixin({
+                    toast: true,
+                    position: 'center-center',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    })
+
+                    Toast.fire({
+                        icon: 'error',
+                        title: "Table in database '"+f+"' does not exist."
+                    })
+                }//error
             });
         }
         }
     }
+
     function pro_data(){
         if ($.fn.DataTable.isDataTable('#properties_Table')) {
             $("#properties_Table").remove()
@@ -295,7 +334,22 @@
                     
                 },
                 error : function(XMLHttpRequest, textStatus, errorThrown){
-                    alert('Error');
+                    var Toast = Swal.mixin({
+                    toast: true,
+                    position: 'center-center',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    })
+
+                    Toast.fire({
+                        icon: 'error',
+                        title: "Failed to get table properties."
+                    })
                 }
             });
     }

@@ -6,8 +6,7 @@ const yellowText = ['nextval', 'integer', '::regclass','timestamp','text', 'varc
 
 // swiper 배너
 $(document).ready(function () {
-
-  var mySwifer = new Swiper('.swiper-container', {
+    var mySwifer = new Swiper('.swiper-container', {
       slidesPerView: 8,
       spaceBetween: 30,
       slidesPerGroup: 1,
@@ -49,17 +48,9 @@ $(document).ready(function () {
 $(document).ready(function () {
    
 // X-factor DF
-	 $(".btn-dataNavi").on('click',function(){
-        const dataNavi = ['Teradata','Postgres','ETC']
+    $(".btn-dataNavi").on('click', function () {
         $(".btn-dataNavi").removeClass("active");
         $(this).addClass("active");
-        let btnText = $(this).text()
-        dataNavi.forEach(function(element){
-         if(btnText === element){
-            $('.Navi-DF').css("display","none");
-            $('.Navi-DF-' + element +'-menu').css("display","block");
-            }
-        });
     });
     const textBoxHover = function(){
         $(".table-textBox").on({
@@ -72,14 +63,14 @@ $(document).ready(function () {
         });
     };
 
-    $(".btn-tableProperties").on('click',function(){
+    $(".btn-tableProperties").on('click', function () {
 //    Data Columns View Procedure DDL
         const tableProperties = ['Data', 'Column', 'View', 'Procedure', 'DDL']
         $(".btn-tableProperties").removeClass("active");
         $(this).addClass("active");
         let btnText = $(this).text()
         tableProperties.forEach(function(element){
-             if(btnText === element){
+            if (btnText === element) {
                 $('.properties').css("display","none");
                 $(".properties-" + element).css("display","table");
 
@@ -89,30 +80,13 @@ $(document).ready(function () {
          textBoxHover()
     });
 
-    $(".menu-list").on('click',function(){
-        if($(this).is('.menu-list1')){
-            var mother = $(this).closest('.Navi-DF-menu1')
-            if($(this).is('.bi-caret-right-fill')){
-                $(this).removeClass("bi-caret-right-fill")
-                $(this).addClass("bi-caret-down-fill")
-                mother.children(".Navi-DF-menu2").css("display",'block');
-            } else if($(this).is('.bi-caret-down-fill')) {
-                $(this).removeClass("bi-caret-down-fill")
-                $(this).addClass("bi-caret-right-fill")
-                mother.children(".Navi-DF-menu2").css("display",'none');
-            }
-        }
-        
-
-
-            });
 
 
     let qTab = $('.query-tabs').children().last()
     let cTab = $('.query-tabContent').children().last()
     let delBtn = qTab.children().children().last()
     let number = 1
-    $("#addScript").on('click',function(){
+    $("#addScript").on('click', function () {
         let qHasClass = 0;
         let cHasClass = 0;
         if (number < 10){

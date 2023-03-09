@@ -30717,10 +30717,10 @@ body .note-modal-backdrop {
     color: rgba(255,255,255,0.7);
     cursor:pointer;
 }
-
+/* 
 .Navi-DF-menu2,.Navi-DF-menu3, .Navi-DF-menu4, .Navi-DF-menu5 {
     padding-left:14px;
-}
+} */
 
 .Navi-DF-menu1, .Navi-DF-menu2,.Navi-DF-menu3, .Navi-DF-menu4, .Navi-DF-menu5 {
     font-size:12px;
